@@ -1,0 +1,65 @@
+schema_version: 1
+
+context:
+  name: GB-code
+  version: "1.0.0"
+
+package:
+  name: ${{ name|lower }}
+  version: ${{ version }}
+
+source:
+  url: https://pypi.org/packages/source/${{ name[0] }}/${{ name }}/GB_code-${{ version }}.tar.gz
+  sha256: 9e94a011a59700f25144e93149ab38b2493f51ff9910d9ef37d01e4517112011
+  patches:
+    - import.patch
+
+build:
+  number: 2
+  noarch: python
+  script: ${{ PYTHON }} -m pip install . -vv
+  python:
+    entry_points:
+      - csl_generator = gb_code.csl_generator:main
+      - gb_generator = gb_code.gb_generator:main
+
+requirements:
+  host:
+    - pip
+    - python ${{ python_min }}.*
+    - setuptools
+  run:
+    - numpy >=1.14.0
+    - python >=${{ python_min }}
+    - pyyaml
+
+tests:
+  - python:
+      imports:
+        - gb_code
+      pip_check: true
+      python_version: ${{ python_min }}
+  - requirements:
+      run:
+        - pip
+        - python ${{ python_min }}.*
+    script:
+      - csl_generator --help
+      - gb_generator
+
+about:
+  license: MIT
+  license_file: LICENSE
+  summary: A Grainboundary generation code
+  description: |
+    This python package helps you create orthogonal grain boundary
+    supercells for atomistic calculations. The code is based on the
+    coincident site lattice (CSL) formulations for cubic materials
+    (sc, bcc, fcc, diamond).
+  homepage: https://github.com/oekosheri/GB_code
+  repository: https://github.com/oekosheri/GB_code
+  documentation: https://github.com/oekosheri/GB_code
+
+extra:
+  recipe-maintainers:
+    - jan-janssen
